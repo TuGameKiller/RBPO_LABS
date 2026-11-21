@@ -1,4 +1,4 @@
 #!/bin/bash
-curl -X POST http://localhost:8080/api/users \
+curl -i -X POST http://localhost:8080/api/users \
   -H "Content-Type: application/json" \
-  -d '{"name": "Тест Тестеров", "email": "test@example.com", "role": "test"}'
+  -d '{"username":"igor_reader","password":"secret123","role":"READER","status":"ENABLED"}'

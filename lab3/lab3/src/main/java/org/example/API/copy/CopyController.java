@@ -1,5 +1,6 @@
 package org.example.API.copy;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -26,33 +27,26 @@ public class CopyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CopyClass copy) {
-        try {
-            CopyClass created = service.create(copy);
-            return ResponseEntity.ok(created);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CopyClass> create(@RequestBody CopyClass copy) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(copy));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CopyClass copy) {
-        try {
-            return service.update(id, copy)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PatchMapping("/{id}")
+    public ResponseEntity<CopyClass> patch(@PathVariable Long id, @RequestBody CopyClass copy) {
+        return service.update(id, copy)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            service.delete(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return service.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{id}/write-off")
+    public ResponseEntity<CopyClass> writeOff(@PathVariable Long id) {
+        return ResponseEntity.ok(service.writeOffCopy(id));
     }
 }

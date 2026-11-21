@@ -1,4 +1,5 @@
 package org.example.API.bookedition;
+
 import jakarta.persistence.*;
 
 @Entity

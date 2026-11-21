@@ -1,5 +1,6 @@
 package org.example.API.loan;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -26,35 +27,51 @@ public class LoanController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody LoanClass loan) {
-        try {
-            LoanClass created = service.create(loan);
-            return ResponseEntity.ok(created);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<LoanClass> create(@RequestBody LoanClass loan) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(loan));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody LoanClass loan) {
-        try {
-            return service.update(id, loan)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PatchMapping("/{id}")
+    public ResponseEntity<LoanClass> patch(@PathVariable Long id, @RequestBody LoanClass loan) {
+        return service.update(id, loan)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            if (service.delete(id)) {
-                return ResponseEntity.ok().build();
-            }
-            return ResponseEntity.notFound().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return service.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/issue")
+    public ResponseEntity<LoanClass> issue(@RequestBody IssueRequest request) {
+        LoanClass created = service.issueCopy(request.copyId, request.userId, request.loanDate);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("/{id}/return")
+    public ResponseEntity<LoanClass> returnLoan(@PathVariable Long id,
+                                                @RequestBody(required = false) DateRequest request) {
+        String returnDate = request != null ? request.date : null;
+        return ResponseEntity.ok(service.returnCopy(id, returnDate));
+    }
+
+    @PostMapping("/{id}/extend")
+    public ResponseEntity<LoanClass> extend(@PathVariable Long id,
+                                            @RequestBody(required = false) DateRequest request) {
+        String newDate = request != null ? request.date : null;
+        return ResponseEntity.ok(service.extendLoan(id, newDate));
+    }
+
+    public static class IssueRequest {
+        public Long copyId;
+        public Long userId;
+        public String loanDate;
+    }
+
+    public static class DateRequest {
+        public String date;
     }
 }
