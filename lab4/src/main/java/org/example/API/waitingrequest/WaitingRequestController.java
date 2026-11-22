@@ -1,6 +1,8 @@
 package org.example.API.waitingrequest;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -26,35 +28,39 @@ public class WaitingRequestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody WaitingRequestClass request) {
-        try {
-            WaitingRequestClass created = service.create(request);
-            return ResponseEntity.ok(created);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity<WaitingRequestClass> create(@RequestBody WaitingRequestClass request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody WaitingRequestClass request) {
-        try {
-            return service.update(id, request)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity<WaitingRequestClass> patch(@PathVariable Long id, @RequestBody WaitingRequestClass request) {
+        return service.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            if (service.delete(id)) {
-                return ResponseEntity.ok().build();
-            }
-            return ResponseEntity.notFound().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return service.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/enqueue")
+    @PreAuthorize("hasAnyRole('READER', 'LIBRARIAN')")
+    public ResponseEntity<WaitingRequestClass> enqueue(@RequestBody EnqueueRequest request) {
+        WaitingRequestClass created = service.enqueueRequest(
+                request.bookEditionId, request.userId, request.requestDate
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    public static class EnqueueRequest {
+        public Long bookEditionId;
+        public Long userId;
+        public String requestDate;
     }
 }

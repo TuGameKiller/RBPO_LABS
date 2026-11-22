@@ -41,6 +41,7 @@ public class WaitingRequestClass {
         this.bookEdition = bookEdition;
         if (bookEdition != null) this.bookEditionId = bookEdition.getId();
     }
+
     public Long getBookEditionId() { return bookEdition != null ? bookEdition.getId() : bookEditionId; }
     public void setBookEditionId(Long bookEditionId) { this.bookEditionId = bookEditionId; }
 
@@ -49,6 +50,7 @@ public class WaitingRequestClass {
         this.user = user;
         if (user != null) this.userId = user.getId();
     }
+
     public Long getUserId() { return user != null ? user.getId() : userId; }
     public void setUserId(Long userId) { this.userId = userId; }
 

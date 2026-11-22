@@ -19,15 +19,13 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-
-        if (!userRepository.existsByUsername("admin")) {
-            UserClass admin = new UserClass();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin12345"));
-            admin.setRole("ROLE_ADMIN");
-            admin.setEnabled(true);
-            userRepository.save(admin);
-            System.out.println("Создан администратор по умолчанию: admin / admin12345");
+        if (!userRepository.existsByUsername("lib")) {
+            UserClass librarian = new UserClass();
+            librarian.setUsername("lib");
+            librarian.setPassword(passwordEncoder.encode("lib123"));
+            librarian.setRole("LIBRARIAN");
+            librarian.setStatus("ENABLED");
+            userRepository.save(librarian);
         }
     }
 }

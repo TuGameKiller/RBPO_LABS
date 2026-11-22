@@ -1,6 +1,8 @@
 package org.example.API.bookedition;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -26,35 +28,24 @@ public class BookEditionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody BookEditionClass edition) {
-        try {
-            BookEditionClass created = service.create(edition);
-            return ResponseEntity.ok(created);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity<BookEditionClass> create(@RequestBody BookEditionClass edition) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(edition));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody BookEditionClass edition) {
-        try {
-            return service.update(id, edition)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity<BookEditionClass> patch(@PathVariable Long id, @RequestBody BookEditionClass edition) {
+        return service.update(id, edition)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            if (service.delete(id)) {
-                return ResponseEntity.ok().build();
-            }
-            return ResponseEntity.notFound().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return service.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

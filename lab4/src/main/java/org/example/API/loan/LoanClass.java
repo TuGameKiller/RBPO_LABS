@@ -31,7 +31,6 @@ public class LoanClass {
     @Column
     private String returnDate;
 
-
     public LoanClass() {}
 
     public Long getId() { return id; }
@@ -42,6 +41,7 @@ public class LoanClass {
         this.copy = copy;
         if (copy != null) this.copyId = copy.getId();
     }
+
     public Long getCopyId() { return copy != null ? copy.getId() : copyId; }
     public void setCopyId(Long copyId) { this.copyId = copyId; }
 
@@ -50,6 +50,7 @@ public class LoanClass {
         this.user = user;
         if (user != null) this.userId = user.getId();
     }
+
     public Long getUserId() { return user != null ? user.getId() : userId; }
     public void setUserId(Long userId) { this.userId = userId; }
 

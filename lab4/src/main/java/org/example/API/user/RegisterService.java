@@ -2,6 +2,7 @@ package org.example.API.user;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RegisterService {
@@ -14,22 +15,26 @@ public class RegisterService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserClass registerUser(String username, String rawPassword) {
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Пользователь с таким именем уже существует!");
+    @Transactional
+    public UserClass register(String username, String rawPassword) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Имя пользователя не должно быть пустым");
         }
-
-
-        if (rawPassword == null || rawPassword.length() < 8 ||
-                !rawPassword.matches(".*[0-9].*") || !rawPassword.matches(".*[a-zA-Z].*")) {
-            throw new IllegalArgumentException("Пароль должен содержать минимум 8 символов, хотя бы одну цифру и букву!");
+        String cleanUsername = username.trim();
+        if (userRepository.existsByUsername(cleanUsername)) {
+            throw new IllegalArgumentException("Пользователь с таким именем уже существует");
+        }
+        if (rawPassword == null || rawPassword.length() < 8
+                || !rawPassword.matches(".*[A-Za-z].*")
+                || !rawPassword.matches(".*\\d.*")) {
+            throw new IllegalArgumentException("Пароль должен быть не короче 8 символов и содержать букву и цифру");
         }
 
         UserClass user = new UserClass();
-        user.setUsername(username);
+        user.setUsername(cleanUsername);
         user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setRole("ROLE_USER"); // При регистрации выдаем базовую роль
-        user.setEnabled(true);
+        user.setRole("READER");
+        user.setStatus("ENABLED");
 
         return userRepository.save(user);
     }
