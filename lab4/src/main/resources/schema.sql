@@ -44,3 +44,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "userOK";
 
 CREATE USER "root" WITH PASSWORD 'root';
 GRANT ALL PRIVILEGES ON DATABASE library_db TO "root"; */
+
+INSERT INTO users (username, password, role, status)
+VALUES ('lib', 'lib123', 'LIBRARIAN', 'ENABLED')
+ON CONFLICT (username) DO NOTHING;
