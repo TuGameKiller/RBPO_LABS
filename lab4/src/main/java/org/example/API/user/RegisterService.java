@@ -1,8 +1,10 @@
 package org.example.API.user;
 
+import org.springframework.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class RegisterService {
@@ -17,14 +19,15 @@ public class RegisterService {
 
     @Transactional
     public UserClass register(String username, String rawPassword) {
-        if (username == null || username.isBlank()) {
+        if (!StringUtils.hasText(username)) {
             throw new IllegalArgumentException("Имя пользователя не должно быть пустым");
         }
         String cleanUsername = username.trim();
         if (userRepository.existsByUsername(cleanUsername)) {
             throw new IllegalArgumentException("Пользователь с таким именем уже существует");
         }
-        if (rawPassword == null || rawPassword.length() < 8
+        if (!StringUtils.hasText(rawPassword)
+                || rawPassword.length() < 8
                 || !rawPassword.matches(".*[A-Za-z].*")
                 || !rawPassword.matches(".*\\d.*")) {
             throw new IllegalArgumentException("Пароль должен быть не короче 8 символов и содержать букву и цифру");
@@ -39,3 +42,4 @@ public class RegisterService {
         return userRepository.save(user);
     }
 }
+

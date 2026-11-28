@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserService {
@@ -30,10 +31,10 @@ public class UserService {
         if (repository.existsByUsername(username)) {
             throw new IllegalArgumentException("Пользователь с username '" + username + "' уже существует");
         }
-        if (user.getRole() == null || user.getRole().isBlank()) {
+        if (!StringUtils.hasText(user.getRole())) {
             user.setRole("READER");
         }
-        if (user.getStatus() == null || user.getStatus().isBlank()) {
+        if (!StringUtils.hasText(user.getStatus())) {
             user.setStatus("ENABLED");
         }
         return repository.save(user);

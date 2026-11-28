@@ -2,12 +2,12 @@ package org.example.security;
 
 import org.example.API.user.UserClass;
 import org.example.API.user.UserRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -25,16 +25,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserClass user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
-        boolean enabled = "ENABLED".equalsIgnoreCase(user.getStatus());
-        String role = (user.getRole() == null || user.getRole().isBlank())
+        String role = !StringUtils.hasText(user.getRole())
                 ? "READER"
                 : user.getRole().trim().toUpperCase().replaceFirst("^ROLE_", "");
 
         return User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .disabled(!enabled)
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + role)))
+                .disabled(!"ENABLED".equalsIgnoreCase(user.getStatus()))
+                .roles(role)
                 .build();
     }
 }

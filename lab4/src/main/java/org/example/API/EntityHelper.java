@@ -2,12 +2,13 @@ package org.example.API;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.function.Consumer;
+import org.springframework.util.StringUtils;
 
 public final class EntityHelper {
     private EntityHelper() {}
 
     public static String requireNonBlank(String value, String message) {
-        if (value == null || value.isBlank()) {
+        if (!StringUtils.hasText(value)) {
             throw new IllegalArgumentException(message);
         }
         return value;
